@@ -1,10 +1,22 @@
 {
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "devDependencies": {
+    "@types/jquery": "^3.5.33",
     "dotenv-cli": "^11.0.0",
     "prisma": "^6.18.0"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
-    "dotenv": "^17.2.3"
+    "admin-lte": "^4.0.0-rc3",
+    "dotenv": "^17.2.3",
+    "jquery": "^3.7.1",
+    "next": "^16.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   }
 }

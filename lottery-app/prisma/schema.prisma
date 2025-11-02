@@ -1,0 +1,224 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model SiteConfig {
+  id              Int      @id @default(autoincrement())
+  siteName        String?
+  siteUrl         String?
+  logoUrl         String?
+  faviconUrl      String?
+  contactEmail    String?
+  contactPhone    String?
+  address         String?
+  country         String?
+  language        String   @default("en")
+  currency        Currency @default(CLP)
+  multiLanguage   Boolean  @default(false)
+  multiCurrency   Boolean  @default(false)
+  maintenanceMode Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model EmailConfig {
+  id           Int      @id @default(autoincrement())
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUsername String?
+  smtpPassword String?
+  fromEmail    String?
+  fromName     String?
+  isEnabled    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Raffle {
+  id                   Int           @id @default(autoincrement())
+  name                 String
+  description          String?
+  imageUrl             String?
+  totalTickets         Int
+  minPurchase          Int           @default(1)
+  maxPurchase          Int           @default(10)
+  drawDate             DateTime?
+  percentageMode       Boolean       @default(false)
+  activationPercentage Int?
+  daysForDraw          Int?
+  status               RaffleStatus  @default(draft)
+  pauseUntil           DateTime?
+  pauseReason          String?
+  autoPauseEnabled     Boolean       @default(true)
+  publish              Boolean       @default(false)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  prizes               Prize[]
+  paymentMethods       PaymentMethod[]
+  purchases            Purchase[]
+  tickets              Ticket[]
+  winners              Winner[]
+}
+
+model Prize {
+  id          Int      @id @default(autoincrement())
+  raffleId    Int
+  name        String
+  description String?
+  imageUrl    String?
+  position    Int
+  createdAt   DateTime @default(now())
+  raffle      Raffle   @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+}
+
+model PaymentMethod {
+  id          Int               @id @default(autoincrement())
+  raffleId    Int
+  methodType  String
+  accountInfo String
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  raffle      Raffle            @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+  purchases   Purchase[]
+
+  @@unique([raffleId, methodType])
+}
+
+model Customer {
+  id          String     @id @default(cuid())
+  email       String?    @unique
+  name        String
+  phone       String
+  ci          String?
+  country     String?
+  city        String?
+  address     String?
+  riskScore   Float?     @default(0)
+  isBlocked   Boolean    @default(false)
+  blockReason String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  purchases   Purchase[]
+  tickets     Ticket[]
+  emailLogs   EmailLog[]
+}
+
+model Purchase {
+  id                  Int               @id @default(autoincrement())
+  raffleId            Int
+  paymentMethodId     Int?
+  customerId          String?
+  customerName        String
+  customerPhone       String
+  customerEmail       String?
+  customerCI          String?
+  paymentMethod       String
+  paymentReference    String?
+  paymentProofUrl     String?
+  ticketQuantity      Int
+  totalAmount         Float
+  currency            Currency          @default(CLP)
+  status              String    @default("pending")
+  notes               String?
+  ipAddress           String?
+  userAgent           String?
+  fraudScore          Float?            @default(0)
+  reviewedBy          String?
+  reviewedAt          DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  raffle              Raffle            @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+  paymentMethodDetail PaymentMethod?    @relation(fields: [paymentMethodId], references: [id])
+  tickets             Ticket[]
+  emailLogs           EmailLog[]
+  customer            Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
+}
+
+model Ticket {
+  id           Int       @id @default(autoincrement())
+  raffleId     Int
+  purchaseId   Int?
+  customerId   String?
+  ticketNumber String
+  isAvailable  Boolean   @default(true)
+  isSold       Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  raffle       Raffle    @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+  purchase     Purchase? @relation(fields: [purchaseId], references: [id], onDelete: SetNull)
+  customer     Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@unique([raffleId, ticketNumber])
+}
+
+model Winner {
+  id            Int      @id @default(autoincrement())
+  raffleId      Int
+  prizeId       Int
+  ticketId      Int
+  customerId    String?
+  winnerName    String
+  winnerPhone   String
+  winnerEmail   String?
+  prizePosition Int
+  confirmed     Boolean  @default(false)
+  paidOut       Boolean  @default(false)
+  payoutDate    DateTime?
+  createdAt     DateTime @default(now())
+  raffle        Raffle   @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+}
+
+model EmailLog {
+  id             Int         @id @default(autoincrement())
+  purchaseId     Int?
+  customerId     String?
+  recipientEmail String
+  emailType      String
+  subject        String
+  status         String @default("pending")
+  resendEmailId  String?
+  errorMessage   String?
+  metadata       String?
+  sentAt         DateTime?
+  createdAt      DateTime    @default(now())
+  purchase       Purchase?   @relation(fields: [purchaseId], references: [id], onDelete: SetNull)
+  customer       Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+}
+
+model SalesAnalytics {
+  id            Int               @id @default(autoincrement())
+  raffleId      Int?
+  date          DateTime          @default(now())
+  totalSales    Int               @default(0)
+  totalRevenue  Float             @default(0)
+  currency      Currency          @default(CLP)
+  paymentMethod String?
+  country       String?
+}
+
+enum RaffleStatus {
+  draft
+  active
+  paused
+  finished
+  cancelled
+}
+
+enum Currency {
+  CLP
+  USD
+  EUR
+  MXN
+  COP
+  PEN
+  ARS
+  BRL
+}

@@ -1,7 +1,9 @@
 
+'use client'
+
 import 'admin-lte/dist/css/adminlte.min.css';
-import 'admin-lte/plugins/fontawesome-free/css/all.min.css';
-import 'admin-lte/dist/js/adminlte.min.js';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import AdminLTEInitializer from '@/components/AdminLTEInitializer';
 
 export default function AdminLayout({
   children,
@@ -11,6 +13,7 @@ export default function AdminLayout({
   return (
     <html lang="en">
       <body className="hold-transition sidebar-mini">
+        <AdminLTEInitializer />
         <div className="wrapper">
           <nav className="main-header navbar navbar-expand navbar-white navbar-light">
             <ul className="navbar-nav">

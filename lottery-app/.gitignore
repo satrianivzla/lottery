@@ -41,4 +41,7 @@ dev.db
 *.tsbuildinfo
 next-env.d.ts
 
+# uploads
+/public/uploads
+
 /generated/prisma

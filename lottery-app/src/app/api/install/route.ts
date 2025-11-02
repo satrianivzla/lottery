@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { promises as fs } from 'fs'
 import { exec } from 'child_process'
 import bcrypt from 'bcryptjs'
@@ -48,7 +48,6 @@ export async function POST(request: Request) {
 
   // 3. Create admin user
   try {
-    const prisma = new PrismaClient()
     const hashedPassword = await bcrypt.hash(adminPassword, 10)
     await prisma.user.create({
       data: {

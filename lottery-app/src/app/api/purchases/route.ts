@@ -1,8 +1,6 @@
 
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 export async function POST(request: Request) {
   const body = await request.json()
@@ -13,9 +11,20 @@ export async function POST(request: Request) {
     customerEmail,
     ticketQuantity,
     paymentProofUrl,
+    paymentMethod,
   } = body
 
   try {
+    const raffle = await prisma.raffle.findUnique({
+      where: { id: raffleId },
+    })
+
+    if (!raffle) {
+      return NextResponse.json({ error: 'Raffle not found.' }, { status: 404 })
+    }
+
+    const totalAmount = raffle.ticketPrice * ticketQuantity
+
     const purchase = await prisma.purchase.create({
       data: {
         raffleId,
@@ -24,8 +33,8 @@ export async function POST(request: Request) {
         customerEmail,
         ticketQuantity,
         paymentProofUrl,
-        totalAmount: 0, // This should be calculated based on the raffle's ticket price
-        paymentMethod: 'pago_movil', // This should be dynamic
+        totalAmount,
+        paymentMethod, // This should be dynamic
         status: 'pending',
       },
     })

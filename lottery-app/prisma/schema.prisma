@@ -49,6 +49,7 @@ model Raffle {
   description          String?
   imageUrl             String?
   totalTickets         Int
+  ticketPrice          Float
   minPurchase          Int           @default(1)
   maxPurchase          Int           @default(10)
   drawDate             DateTime?

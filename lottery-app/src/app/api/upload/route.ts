@@ -1,42 +1,29 @@
 
 import { NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
-import formidable from 'formidable'
 import sharp from 'sharp'
-import { NextApiRequest } from 'next'
+import { NextRequest } from 'next/server'
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
+export async function POST(req: NextRequest) {
+  const formData = await req.formData()
+  const file = formData.get('file') as File
 
-export async function POST(req: NextApiRequest) {
-  const form = formidable({})
+  if (!file) {
+    return NextResponse.json({ error: 'No file uploaded.' }, { status: 400 })
+  }
+
+  // Validate image type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
+  if (!allowedTypes.includes(file.type)) {
+    return NextResponse.json({ error: 'Invalid file type.' }, { status: 400 })
+  }
+
+  const imageBuffer = Buffer.from(await file.arrayBuffer())
+  const imageName = `${Date.now()}.webp`
+  const outputPath = `public/uploads/${imageName}`
 
   try {
-    const [fields, files] = await form.parse(req)
-
-    const file = files.file[0]
-
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded.' }, { status: 400 })
-    }
-
-    // Validate image type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
-    if (!allowedTypes.includes(file.mimetype)) {
-      return NextResponse.json({ error: 'Invalid file type.' }, { status: 400 })
-    }
-
-    const imagePath = file.filepath
-    const imageName = `${Date.now()}.webp`
-    const outputPath = `public/uploads/${imageName}`
-
-    await sharp(imagePath).webp().toFile(outputPath)
-
-    // Clean up the temporary file
-    await fs.unlink(imagePath)
+    await sharp(imageBuffer).webp().toFile(outputPath)
 
     const publicPath = `/uploads/${imageName}`
     return NextResponse.json({ path: publicPath })

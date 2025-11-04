@@ -32,6 +32,7 @@ export default function RafflesPage() {
         </div>
         <div className="card">
           <div className="card-body">
+            <div className="table-responsive">
             <table className="table table-bordered">
               <thead>
                 <tr>
@@ -52,6 +53,7 @@ export default function RafflesPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>

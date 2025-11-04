@@ -115,7 +115,7 @@ export default function RafflePage() {
               {error && <div className="alert alert-danger">{error}</div>}
               {success && <div className="alert alert-success">{success}</div>}
               <form onSubmit={handleSubmit}>
-                <div className="form-group">
+                <div className="form-group mb-3">
                   <label>Name</label>
                   <input
                     type="text"
@@ -125,7 +125,7 @@ export default function RafflePage() {
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group mb-3">
                   <label>Phone</label>
                   <input
                     type="text"
@@ -135,7 +135,7 @@ export default function RafflePage() {
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group mb-3">
                   <label>Email</label>
                   <input
                     type="email"
@@ -145,7 +145,7 @@ export default function RafflePage() {
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group mb-3">
                   <label>Ticket Quantity</label>
                   <input
                     type="number"
@@ -156,7 +156,7 @@ export default function RafflePage() {
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group mb-3">
                   <label>Payment Proof</label>
                   <input
                     type="file"
@@ -166,7 +166,7 @@ export default function RafflePage() {
                     required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary mt-3">
+                <button type="submit" className="btn btn-primary mt-4">
                   Purchase
                 </button>
               </form>
